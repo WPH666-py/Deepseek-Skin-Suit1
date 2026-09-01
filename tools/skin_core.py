@@ -183,12 +183,29 @@ def wallpaper_path(mode, size):
     return os.path.join(WALLPAPER_DIR, "%s-%dx%d.jpg" % (mode, size[0], size[1]))
 
 
+def _source_freshness():
+    """素材与核心脚本的最新修改时间, 用于判断输出是否过期(实现热更新)。"""
+    paths = [os.path.join(ASSETS_DIR, f) for f in IMAGE_FILES] + [os.path.abspath(__file__)]
+    mt = 0.0
+    for p in paths:
+        try:
+            mt = max(mt, os.path.getmtime(p))
+        except OSError:
+            pass
+    return mt
+
+
 def build(mode, size=None, force=False):
-    """合成并保存, 返回文件路径。"""
+    """合成并保存, 返回文件路径。素材/脚本更新后会自动重新生成(热更新)。"""
     ensure_dirs()
     size = tuple(size) if size else screen_size()
     out = wallpaper_path(mode, size)
-    if not force and os.path.exists(out):
+    stale = (
+        force
+        or not os.path.exists(out)
+        or os.path.getmtime(out) < _source_freshness()
+    )
+    if not stale:
         return out
     img = compose(mode, size)
     img.save(out, quality=92)
@@ -203,6 +220,9 @@ def set_wallpaper(path):
     system = platform.system()
     if system == "Windows":
         import ctypes
+        import time
+        # 留出一点写盘时间, 避免 Explorer 读到旧缓存导致"壁纸没变化"
+        time.sleep(0.4)
         # SPI_SETDESKWALLPAPER=20, SPIF_UPDATEINIFILE|SPIF_SENDWININICHANGE=3
         ok = ctypes.windll.user32.SystemParametersInfoW(20, 0, path, 3)
         if not ok:
