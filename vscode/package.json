@@ -1,0 +1,100 @@
+{
+  "name": "deepskin-suit",
+  "displayName": "DeepSkin Suit — 大肥鱼皮肤",
+  "description": "DeepSeek 蓝色大肥鱼皮肤套件: 2x2 壁纸一键切换 · 桌面桌宠 · 多 IDE 皮肤素材",
+  "version": "0.1.0",
+  "publisher": "wp666",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WPH666-py/Deepseek-Skin-Suit1.git"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other",
+    "Themes"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "deepskin.setGrid",
+        "title": "大肥鱼: 2×2 拼贴壁纸"
+      },
+      {
+        "command": "deepskin.setSingle1",
+        "title": "大肥鱼: 摸摸头"
+      },
+      {
+        "command": "deepskin.setSingle2",
+        "title": "大肥鱼: 亲亲"
+      },
+      {
+        "command": "deepskin.setSingle3",
+        "title": "大肥鱼: 深睡"
+      },
+      {
+        "command": "deepskin.setSingle4",
+        "title": "大肥鱼: 太棒了"
+      },
+      {
+        "command": "deepskin.setRandom",
+        "title": "大肥鱼: 随机换一张"
+      },
+      {
+        "command": "deepskin.openSwitcher",
+        "title": "大肥鱼: 打开皮肤切换器"
+      },
+      {
+        "command": "deepskin.startPet",
+        "title": "大肥鱼: 启动桌宠"
+      },
+      {
+        "command": "deepskin.openGallery",
+        "title": "大肥鱼: 打开素材画廊"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "deepskin",
+          "title": "大肥鱼",
+          "icon": "media/deepskin.svg"
+        }
+      ]
+    },
+    "views": {
+      "deepskin": [
+        {
+          "id": "deepskin.gallery",
+          "name": "皮肤画廊",
+          "type": "webview"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "DeepSkin Suit",
+      "properties": {
+        "deepskin.repoPath": {
+          "type": "string",
+          "default": "",
+          "description": "皮肤套件仓库路径(含 tools/wallpaper.py)。留空则自动检测 ~/.deepskin-suit 或 %USERPROFILE%\\DeepSkin-Suit。"
+        },
+        "deepskin.pythonPath": {
+          "type": "string",
+          "default": "",
+          "description": "Python 解释器路径, 留空自动查找(需要 pip 已装 Pillow, 缺失时扩展会自动安装)。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "node -e \"console.log('no build step')\""
+  }
+}
