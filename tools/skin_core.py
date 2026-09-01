@@ -119,18 +119,37 @@ def _paste_card(base, src, cell, margin_ratio=0.045, radius_ratio=0.05, shadow=T
 
 
 def compose_grid(size=(3840, 2160), cols=2, rows=2):
-    """2x2 拼贴壁纸。"""
+    """紧贴式 2x2 拼贴壁纸: 四张卡片几乎挨在一起(细缝), 整体居中成一块相片墙。
+    卡片大小由屏幕高度决定; 缝隙/外边距比例可用环境变量 DEEPSKIN_GRID_GAP 调整(百分比, 默认 1.5)。"""
     ensure_pillow()
     from PIL import Image
 
     if len(IMAGE_FILES) > cols * rows:
         raise ValueError("素材数量超过网格容量")
+    W, H = size
+    try:
+        gap_pct = float(os.environ.get("DEEPSKIN_GRID_GAP", "1.5"))
+    except ValueError:
+        gap_pct = 1.5
+    m = min(W, H)
+    pad = max(6, int(m * 0.015))  # 外圈边距
+    gap = max(4, int(m * gap_pct / 100.0))  # 卡片之间细缝
+    t = min(
+        (H - 2 * pad - (rows - 1) * gap) // rows,
+        (W - 2 * pad - (cols - 1) * gap) // cols,
+    )
+    t = max(t, 64)
+    total_w = cols * t + (cols - 1) * gap
+    total_h = rows * t + (rows - 1) * gap
+    x0 = (W - total_w) // 2
+    y0 = (H - total_h) // 2
+
     base = _gradient(size).convert("RGBA")
-    cw, ch = size[0] // cols, size[1] // rows
     for i, f in enumerate(IMAGE_FILES):
         src = Image.open(os.path.join(ASSETS_DIR, f)).convert("RGB")
         r, c = divmod(i, cols)
-        _paste_card(base, src, (c * cw, r * ch, cw, ch))
+        cell = (x0 + c * (t + gap), y0 + r * (t + gap), t, t)
+        _paste_card(base, src, cell, margin_ratio=0.018, radius_ratio=0.03, shadow=False)
     return base.convert("RGB")
 
 
